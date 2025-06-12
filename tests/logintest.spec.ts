@@ -1,13 +1,43 @@
 import {test,expect} from '@playwright/test';
 import type {Locator} from '@playwright/test';
+import { CommonInfo } from '../Pages/CommonInfo';
+
 
 let usernameInput: Locator;
 let passwordInput: Locator;
 let loginButton: Locator;
+let commonInfo: CommonInfo;
+
 
 test.beforeEach(async ({ page }) => {
  await page.goto('http://localhost:4200/login');
+ 
+ commonInfo = new CommonInfo(page);
+ commonInfo.verifyHeaderText();
+ commonInfo.verifyHomeLink();
+ commonInfo.verifyAboutLink(); 
 
+  
+  // Check if the panel header text is visible
+  const panelHeaderText = page.locator('h2');
+ await expect(panelHeaderText).toHaveText(/Login/);
+  
+  // Check if the login form is visible
+  const loginForm = page.locator('form');
+  await expect(loginForm).toBeVisible();
+  
+  // Check if the username input field is visible
+  usernameInput = page.locator('input[name="name"]');
+  await expect(usernameInput).toBeVisible();
+  
+  // Check if the password input field is visible
+  passwordInput = page.locator('input[name="password"]');
+  await expect(passwordInput).toBeVisible();
+  
+  // Check if the login button is visible
+  loginButton = page.locator('button[type="submit"]');
+  await expect(loginButton).toBeVisible();
+    
  //check if Already Registered!! Login Here is visible
   const alreadyRegisteredText = page.locator('text=Already Registered!! Login Here');
   await expect(alreadyRegisteredText).toBeVisible();
@@ -20,6 +50,8 @@ test.beforeEach(async ({ page }) => {
 
   loginButton = page.locator('button[type="submit"]');
   await expect(loginButton).toBeVisible();
+  
+  commonInfo.verifyFooterText();
 
 });
 
@@ -43,7 +75,7 @@ test('check for password blank error message', async ({ page }) => {
     await expect(errorMessage).toBeVisible();
 });
 
-test('test', async ({ page }) => {
+test('test for valid credentials', async ({ page }) => {
   await page.goto('http://localhost:4200/login');
   await page.getByRole('textbox', { name: 'Username' }).click();
   await page.getByRole('textbox', { name: 'Username' }).fill('ania');
